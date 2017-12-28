@@ -1,0 +1,4 @@
+wbs
+estimates (m/d, ideal m/d, story points)
+resource plan
+plan for discovery phase
