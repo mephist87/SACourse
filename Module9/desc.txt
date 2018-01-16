@@ -1,0 +1,40 @@
+design deployment diagram
+calculate overall SLA
+calculate monthly/yearly running costs
+
+=== 1. Deployment View ===
+1.1 Select any Cloud you like and create a deployment view. You can use any notation you like but there are Cloud-specific notations for all well-known Clouds in most well-known tools:
+	1.1.1 Draw.io supports AWS, Azure and Google Cloud
+	1.1.2 Lucidchart - the same
+	1.1.3 Cloud symbols/icons can be found at Microsoft site and imported into Visio
+	1.1.4 There are specialised web tools focusing on visualising Cloud architecture, e.g. cloudcraft.co for AWS
+	1.1.5 ...
+
+=== 2. Availability ===
+Actually, this part of HW is with * meaning it's complex if to do it right, but let me provide some hints anyway.
+
+2.1 Start from the ideal (simple) case when you have single points of failure and just multiply all components availability: A1Â * A2Â * A3Â * ... * An.
+2.2 Add redundancy to each component where it's required; the combined availability of the component C1 with 2 identical copies will be 1 - (both copies are unavailable): 1 - (1 - A1)^2
+	Note: here we assume that these copies are fully identical meaning have the same availability and work constantly; we do not even touch complex cases with partial operation or/and non-equal availability
+	Note: easy to guess but just in case for 3 or more copies m it will be: 1 - (1 - A1)^m
+2.3 Now think about software/hardware. Most probably, what you counted for now is either infrastructure (hardware+OS+provided soft) availability or software (your custom soft) availability. In reality, we should count both: each software system/component/service can fail; each infrastructure node where the software works can fail. So, in the simplest case, the component availability is a multiplication of it's infrastructure (i) and software (s) availability: Ai * As
+	Note: with this formula above we assume that 1 software component runs per 1 infrastructure component; you guess that e.g. in case of containers the calculation will be a bit other (out of scope for now)
+	Note: sometimes we do not need to think about hardware/software separation because e.g. Clouds sell it as a "service" and it's transparent for us, e.g. for Amazon S3 they provide 99.9 SLA and we use it as final number for S3 without thinking if this hardware/software
+2.4 How to get real numbers of availability for each component?
+	2.4.1 First of all, use historical data; meaning you have the system that is 5 years in production, then just monitor and write down. Or it can be even not your project but other similar project in your account in the same business domain and with the same architecture and tech stack.
+	2.4.2 If you are in Cloud, they provide SLA for some services.
+	2.4.3 If you are not in the Cloud or/and need to calculate you custom software availability, use MTBF / (MTBF + MTTR), we talked about this formula when discussing fault-tolerance
+2.5 And finally, you should reconsider your calculations in the context of concrete Cloud, they have a lot of interesting things written in small font in the end. E.g. there are tricky moments about how Amazon defines SLA for EC2: in short, they use region-based approach and provide fixed SLA (99.95) only if running EC2 in 2+ AZ (and this number does not increase if using 3 or more zones). As a result, the number 99.95 is a maximum for one region. If you would like to have better, then it needs planning different regions.
+
+F.A.Q.
+Q. What to do if Cloud does not provide SLA for one or other service?
+A. I think the only right approach here would be to count it as 100% for the beginning, and then use the actual historical number of availability letâ€™s say in 1 year after working in production (you will need to monitor it).
+
+Q. So 99.95 is a maximum AWS EC2 availability if running in one region and does not matter how many copies in different zones I run?
+A: Yes.
+
+Q. Okay, how can I calculate MTBF and MTTR?
+A: Either use historical data or predict (based on your architecture and practices you are going to apply on the project).
+
+=== 3. Price Calculation ===
+3.1 Each Cloud has a calculator on their web-site.
